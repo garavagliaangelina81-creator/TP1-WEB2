@@ -6,21 +6,21 @@ API RESTful desarrolada con con **Spring Boot 3.4.3** para la materia **Web II (
 
 ## Cómo levantar el proyecto
 
-**Requisitos previos:** Java 21 o superior y Maven.
+** Requisitos previos: ** Java 21 o superior y Maven.
 
-1. **Clonar el repositorio:**
+1. ** Clonar el repositorio: **
    ```bash
    git clone ( https://github.com/garavagliaangelina81-creator/TP1-WEB2.git )
 
-   2. **Ejecutar la aplicacion;**
+   2. ** Ejecutar la aplicacion; **
    
    mvn spring-boot:run
 
-   ## Documentacion (swagger UI)
+## Documentacion (swagger UI)
 
    La Api cuenta con especificación OpenAPI. Con el servidor corriendo, podés explorar y probar todos los endpoints desde la interfaz gráfica accediendo a:
 
-👉 ** ( http://localhost:8080/swagger-ui/index.html )
+** 👉 ( http://localhost:8080/swagger-ui/index.html )
 
 ## Estructura y Arquitectura
 
