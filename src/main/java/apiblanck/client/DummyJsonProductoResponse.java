@@ -1,4 +1,4 @@
-package client;
+package apiblanck.client;
 import java.util.List;
 
 public record DummyJsonProductoResponse(
