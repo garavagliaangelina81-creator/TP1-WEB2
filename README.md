@@ -6,13 +6,13 @@ API RESTful desarrolada con con **Spring Boot 3.4.3** para la materia **Web II (
 
 ## Cómo levantar el proyecto
 
-** Requisitos previos: ** Java 21 o superior y Maven.
+* Requisitos previos: ** Java 21 o superior y Maven.
 
-1. ** Clonar el repositorio: **
+1.  Clonar el repositorio: 
    ```bash
    git clone ( https://github.com/garavagliaangelina81-creator/TP1-WEB2.git )
 
-   2. ** Ejecutar la aplicacion; **
+   2.  Ejecutar la aplicacion; 
    
    mvn spring-boot:run
 
@@ -20,7 +20,7 @@ API RESTful desarrolada con con **Spring Boot 3.4.3** para la materia **Web II (
 
    La Api cuenta con especificación OpenAPI. Con el servidor corriendo, podés explorar y probar todos los endpoints desde la interfaz gráfica accediendo a:
 
-** 👉 ( http://localhost:8080/swagger-ui/index.html )
+ 👉 ( http://localhost:8080/swagger-ui/index.html )
 
 ## Estructura y Arquitectura
 
@@ -58,3 +58,14 @@ spring-boot-starter-web — Spring MVC y Tomcat embebido.
 spring-boot-starter-validation — Validación de datos (@NotNull, @NotBlank, etc.).
 
 springdoc-openapi-starter-webmvc-ui — Generación de interfaz gráfica Swagger UI / OpenAPI.
+
+---
+
+## 📷 Evidencia 
+
+Las capturas de pantalla que acreditan el correcto funcionamiento de los endpoints (casos de éxito y error) se encuentran organizadas dentro de la carpeta `docs/`:
+
+* `docs/producto-exito.png` — Consulta exitosa de productos (`200 OK`).
+* `docs/producto-error.png` — Búsqueda de producto inexistente (`404 Not Found`).
+* `docs/favorito-exito.png` — Creación exitosa de favorito (`201 Created`).
+* `docs/favorito-error.png` — Manejo de error al procesar favoritos (`500 Internal Server Error`).
