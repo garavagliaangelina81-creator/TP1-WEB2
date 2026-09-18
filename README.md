@@ -1,57 +1,59 @@
 # TP1 - Spring Boot, API REST y Arquitectura en Capas
 
-API RESTful desarrolada con con **Spring Boot 3.4.3** para la materia **Web II (UNVIME)**. El proyecto implementa la gestión de productos y favoritos aplicando una arquitectura en capas (`controller`, `service`, `repository`, `dto`, `model`), validaciones de entrada y consumo de servicios externos.
+API RESTful desarrollada con **Spring Boot 3.4.3** para la materia **Web II (UNVIME)**.
+
+El proyecto implementa la gestión de productos y favoritos aplicando una arquitectura en capas (`controller`, `service`, `repository`, `dto`, `model`), validaciones de entrada y consumo de servicios externos.
 
 ---
 
 ## Cómo levantar el proyecto
 
-* Requisitos previos: ** Java 21 o superior y Maven.
+### Requisitos previos
 
-1.  Clonar el repositorio: 
-   ```bash
-   git clone ( https://github.com/garavagliaangelina81-creator/TP1-WEB2.git )
+- Java 21 o superior
+- Maven
 
-   2.  Ejecutar la aplicacion; 
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/garavagliaangelina81-creator/TP1-WEB2.git
+...
+
+
+   2. Ejecutar la aplicación
    
    mvn spring-boot:run
 
-## Documentacion (swagger UI)
+Documentacion (Swagger UI)
 
    La Api cuenta con especificación OpenAPI. Con el servidor corriendo, podés explorar y probar todos los endpoints desde la interfaz gráfica accediendo a:
 
- 👉 ( http://localhost:8080/swagger-ui/index.html )
+ 👉 http://localhost:8080/swagger-ui/index.html 
 
-## Estructura y Arquitectura
+
+Estructura y Arquitectura
 
 El código fuente está organizado bajo el paquete base apiblanck:
 
-apiblanck.config: Configuración de RestClient (integración con la API externa de DummyJSON) y metadatos de Swagger.
-
-apiblanck.controller: Endpoints REST (@RestController) que exponen la interfaz del sistema.
-
-apiblanck.service: Lógica de negocio y orquestación entre repositorios y clientes externos.
-
-apiblanck.repository: Capa de persistencia (implementación @Primary y simulación en memoria).
-
-apiblanck.client: Integración con la API de DummyJSON para verificar productos.
-
-apiblanck.dto & model: Objetos de transferencia de datos y entidades del dominio.
-
-apiblanck.exception: Manejo centralizado y uniforme de errores de la API.
+apiblanck.config: configuración de RestClient (integración con la API externa de DummyJSON) y metadatos de Swagger.
+apiblanck.controller: endpoints REST (@RestController) que exponen la interfaz del sistema.
+apiblanck.service: lógica de negocio y orquestación entre repositorios y clientes externos.
+apiblanck.repository: capa de persistencia (implementación @Primary y simulación en memoria).
+apiblanck.client: integración con la API de DummyJSON para verificar productos.
+apiblanck.dto y apiblanck.model: objetos de transferencia de datos y entidades del dominio.
+apiblanck.exception: manejo centralizado y uniforme de errores de la API.
 
 
-## Endpoints Principales
+| Método | Path                  | Qué hace                                                                               |
+| ------ | --------------------- | -------------------------------------------------------------------------------------- |
+| GET    | `/api/productos`      | Obtiene el listado completo de productos desde el servicio externo                     |
+| GET    | `/api/productos/{id}` | Busca y devuelve el detalle de un producto específico por su ID                        |
+| GET    | `/api/favoritos`      | Devuelve la lista completa de productos guardados como favoritos                       |
+| POST   | `/api/favoritos`      | Agrega un nuevo producto a la lista de favoritos (valida existencia en la API externa) |
+| DELETE | `/api/favoritos/{id}` | Elimina un producto de la lista de favoritos mediante su ID                            |
 
-| Método | Path | Qué hace |
-|---|---|---|
-| GET | `/api/productos` | Obtiene el listado completo de productos desde el servicio externo |
-| GET | `/api/productos/{id}` | Busca y devuelve el detalle de un producto específico por su ID |
-| GET | `/api/favoritos` | Devuelve la lista completa de productos guardados como favoritos |
-| POST | `/api/favoritos` | Agrega un nuevo producto a la lista de favoritos (valida existencia en la API externa) |
-| DELETE | `/api/favoritos/{id}` | Elimina un producto de la lista de favoritos mediante su ID |
 
-### Dependencias Clave
+Dependencias Clave
 
 spring-boot-starter-web — Spring MVC y Tomcat embebido.
 
@@ -61,11 +63,17 @@ springdoc-openapi-starter-webmvc-ui — Generación de interfaz gráfica Swagger
 
 ---
 
-## 📷 Evidencia 
+📷 Evidencia
 
-Las capturas de pantalla que acreditan el correcto funcionamiento de los endpoints (casos de éxito y error) se encuentran organizadas dentro de la carpeta `docs/`:
+Las capturas de pantalla que acreditan el correcto funcionamiento de los endpoints (casos de éxito y error) se encuentran organizadas dentro de la carpeta docs/:
 
-* `docs/producto-exito.png` — Consulta exitosa de productos (`200 OK`).
-* `docs/producto-error.png` — Búsqueda de producto inexistente (`404 Not Found`).
-* `docs/favorito-exito.png` — Creación exitosa de favorito (`201 Created`).
-* `docs/favorito-error.png` — Manejo de error al procesar favoritos (`500 Internal Server Error`).
+docs/producto-exito.png — Consulta exitosa de productos (200 OK).
+docs/producto-error.png — Búsqueda de producto inexistente (404 Not Found).
+docs/favorito-exito.png — Creación exitosa de favorito (201 Created).
+docs/favorito-error.png — Manejo de error al procesar favoritos (500 Internal Server Error).
+
+
+
+
+
+
