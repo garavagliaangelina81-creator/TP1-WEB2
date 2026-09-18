@@ -1,0 +1,27 @@
+package apiblanck.config;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class OpenApiConfig {
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title("TP1 · Catálogo y Favoritos")
+                        .description(
+                                "Catálogo de productos (consumo de una API externa) + favoritos "
+                                + "(CRUD propio en memoria). Práctico de introducción a Spring Boot."
+                        )
+                        .version("v1"));
+    }
+}
+/**
+ * metadata general que aparece en swager iu(titulo, descripcion, version)
+ * la documentacion de cada endpoint puntual va con @OPERATION en el controller correspondiente
+ *  */          
+
