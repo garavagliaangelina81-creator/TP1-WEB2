@@ -12,7 +12,7 @@ import apiblanck.model.Favorito;
 /*Este es la implementacion de FavoritoRepository.
 Viene a ser el adaptador que implementa el puerto definido por FavoritoRepository.
  */
-@Repository
+
 public class FavoritoRepositoryMemoria implements FavoritoRepository {
     private final Map<Long, Favorito> datos = new ConcurrentHashMap<>();
     private final AtomicLong secuencia = new AtomicLong();

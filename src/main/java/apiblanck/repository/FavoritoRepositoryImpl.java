@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 @Primary
-@Repository
+
 public class FavoritoRepositoryImpl implements FavoritoRepository {
 
     private final Map<Long, Favorito> favoritos = new ConcurrentHashMap<>();
