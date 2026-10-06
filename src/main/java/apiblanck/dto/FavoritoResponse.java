@@ -6,7 +6,8 @@ public record FavoritoResponse (
     Long id,
     Long productoId,
     String nota,
-    LocalDate fecha
+    LocalDate fecha,
+    Long listaId
 ) {}
 
 /**

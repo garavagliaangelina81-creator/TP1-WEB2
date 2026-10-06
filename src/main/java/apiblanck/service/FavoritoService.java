@@ -7,9 +7,12 @@ import apiblanck.model.Favorito;
 import apiblanck.exception.RecursoNoEncontradoException;
 
 import java.util.List;
+
 import org.springframework.stereotype.Service;
+
 @Service
 public class FavoritoService {
+
     private final FavoritoRepository repository;
 
     public FavoritoService(FavoritoRepository repository) {
@@ -35,16 +38,30 @@ public class FavoritoService {
 
     public FavoritoResponse crear(CrearFavoritoRequest request) {
         Favorito nuevo = new Favorito(
-            null, request.productoId(), request.nota(), java.time.LocalDate.now()
+            null,
+            request.productoId(),
+            request.nota(),
+            java.time.LocalDate.now(),
+            request.listaId()
         );
+
         return aResponse(repository.guardar(nuevo));
     }
 
-    public FavoritoResponse actualizar(Long id, CrearFavoritoRequest request) {
+    public FavoritoResponse actualizar(
+        Long id,
+        CrearFavoritoRequest request
+    ) {
         buscar(id);
+
         Favorito actualizado = new Favorito(
-            id, request.productoId(), request.nota(), java.time.LocalDate.now()
+            id,
+            request.productoId(),
+            request.nota(),
+            java.time.LocalDate.now(),
+            request.listaId()
         );
+
         return aResponse(repository.guardar(actualizado));
     }
 
@@ -53,12 +70,17 @@ public class FavoritoService {
         repository.eliminar(id);
     }
 
-    private FavoritoResponse aResponse(Favorito Favorito) {
+    private FavoritoResponse aResponse(Favorito favorito) {
         return new FavoritoResponse(
-            Favorito.id(),
-            Favorito.productoId(),
-            Favorito.nota(),
-            Favorito.fecha()
+            favorito.id(),
+            favorito.productoId(),
+            favorito.nota(),
+            favorito.fecha(),
+            favorito.listaId()
         );
     }
 }
+
+/* ahora el servicio toma el listaId del request, cuando crea o actualiza
+y tmb lo devuelbe en la respuesta favorito.listaId()  */
+/* ahora los dos repo viejos que conservamos pero ya no usan Spring como implementacion principal. */

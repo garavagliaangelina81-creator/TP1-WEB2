@@ -1,10 +1,24 @@
 package apiblanck.dto;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-// este dto es para solicitar la creacion de un favorito, es decir, para recibir la informacion desde el client
-public record CrearFavoritoRequest (
-    @NotNull Long productoId, // id del producto en la api externa
-    @NotBlank @Size(max = 200) String nota // nota personal del usuario sobre el producto
+// Este DTO es para solicitar la creación de un favorito,
+// es decir, para recibir la información desde el cliente.
+
+public record CrearFavoritoRequest(
+
+    @NotNull
+    Long productoId,
+
+    @NotBlank
+    @Size(max = 200)
+    String nota,
+
+    @NotNull
+    Long listaId
+
 ) {}
+
+/* si alguien intenta crear un favorito sin indicar la lista, la validacion del request lo rechaza */

@@ -1,7 +1,7 @@
 package apiblanck.repository;
 
 import apiblanck.model.Favorito;
-import org.springframework.stereotype.Repository;
+
 import org.springframework.context.annotation.Primary;
 
 import java.util.List;
@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-@Primary
 
+@Primary
 public class FavoritoRepositoryImpl implements FavoritoRepository {
 
     private final Map<Long, Favorito> favoritos = new ConcurrentHashMap<>();
@@ -30,12 +30,15 @@ public class FavoritoRepositoryImpl implements FavoritoRepository {
     public Favorito guardar(Favorito favorito) {
         if (favorito.id() == null) {
             Long nuevoId = idGenerator.getAndIncrement();
+
             Favorito nuevoFavorito = new Favorito(
                 nuevoId,
                 favorito.productoId(),
                 favorito.nota(),
-                favorito.fecha()
+                favorito.fecha(),
+                favorito.listaId()
             );
+
             favoritos.put(nuevoId, nuevoFavorito);
             return nuevoFavorito;
         } else {
@@ -47,5 +50,12 @@ public class FavoritoRepositoryImpl implements FavoritoRepository {
     @Override
     public void eliminar(Long id) {
         favoritos.remove(id);
+    }
+
+    @Override
+    public List<Favorito> buscarPorListaId(Long listaId) {
+        return favoritos.values().stream()
+            .filter(favorito -> favorito.listaId().equals(listaId))
+            .toList();
     }
 }

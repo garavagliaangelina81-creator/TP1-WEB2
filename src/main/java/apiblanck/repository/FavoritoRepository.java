@@ -9,7 +9,12 @@ import apiblanck.model.Favorito;
 */
 public interface FavoritoRepository { 
     List<Favorito> buscarTodos();
+
     Optional<Favorito> buscarPorId(Long id);
+
     Favorito guardar(Favorito favorito);
+
     void eliminar(Long id);
+
+    List<Favorito> buscarPorListaId(Long listaId);
 }

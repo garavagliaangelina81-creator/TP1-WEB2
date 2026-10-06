@@ -1,6 +1,7 @@
 package apiblanck.repository;
 
 import apiblanck.entity.FavoritoEntity;
+import apiblanck.entity.ListaEntity;
 import apiblanck.model.Favorito;
 
 import java.util.List;
@@ -12,9 +13,14 @@ import org.springframework.stereotype.Repository;
 public class FavoritoRepositoryAdapter implements FavoritoRepository {
 
     private final FavoritoJpaRepository jpaRepository;
+    private final ListaJpaRepository listaJpaRepository;
 
-    public FavoritoRepositoryAdapter(FavoritoJpaRepository jpaRepository) {
+    public FavoritoRepositoryAdapter(
+        FavoritoJpaRepository jpaRepository,
+        ListaJpaRepository listaJpaRepository
+    ) {
         this.jpaRepository = jpaRepository;
+        this.listaJpaRepository = listaJpaRepository;
     }
 
     @Override
@@ -33,7 +39,18 @@ public class FavoritoRepositoryAdapter implements FavoritoRepository {
 
     @Override
     public Favorito guardar(Favorito favorito) {
-        FavoritoEntity entity = aEntity(favorito);
+        ListaEntity lista = listaJpaRepository.getReferenceById(
+            favorito.listaId()
+        );
+
+        FavoritoEntity entity = new FavoritoEntity(
+            favorito.id(),
+            favorito.productoId(),
+            favorito.nota(),
+            favorito.fecha(),
+            lista
+        );
+
         FavoritoEntity guardado = jpaRepository.save(entity);
 
         return aDominio(guardado);
@@ -43,22 +60,23 @@ public class FavoritoRepositoryAdapter implements FavoritoRepository {
     public void eliminar(Long id) {
         jpaRepository.deleteById(id);
     }
+    @Override
+    public List<Favorito> buscarPorListaId(Long listaId) {
+    return jpaRepository.findByListaId(listaId)
+        .stream()
+        .map(this::aDominio)
+        .toList();
+}
 
     private Favorito aDominio(FavoritoEntity entity) {
         return new Favorito(
             entity.getId(),
             entity.getProductoId(),
             entity.getNota(),
-            entity.getFecha()
-        );
-    }
-
-    private FavoritoEntity aEntity(Favorito favorito) {
-        return new FavoritoEntity(
-            favorito.id(),
-            favorito.productoId(),
-            favorito.nota(),
-            favorito.fecha()
+            entity.getFecha(),
+            entity.getLista().getId()
         );
     }
 }
+/* ahora adapter hace la conversion: dominio - JPA y al volver JPA - dominio
+usamos getReferenceById() para obtener la referencia JPA de la lista sin tener que cargar toda la entidad. */
