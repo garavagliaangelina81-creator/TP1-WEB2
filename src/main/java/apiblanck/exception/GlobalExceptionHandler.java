@@ -38,6 +38,13 @@ public class GlobalExceptionHandler {
         problema.setProperty("errores", errores);
         return problema;
     }
+    @ExceptionHandler(RecursoEnConflictoException.class)
+    public ProblemDetail handleConflicto(RecursoEnConflictoException ex) {
+    return ProblemDetail.forStatusAndDetail(
+            HttpStatus.CONFLICT,
+            ex.getMessage()
+    );
+}
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenerico(Exception ex) {
@@ -59,3 +66,9 @@ public class GlobalExceptionHandler {
  * RecursoNoEncontradoException o que el DTO de entrada tenga anotaciones
  * de Bean Validation para que estos mismos handlers respondan.
  */
+/*Así tu handler va a reconocer:
+
+RecursoNoEncontradoException → 404
+RecursoEnConflictoException → 409
+errores de validación → 400
+error inesperado → 500  */
