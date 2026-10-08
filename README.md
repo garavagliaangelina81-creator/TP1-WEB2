@@ -30,7 +30,7 @@ El proyecto continúa el desarrollo realizado en el TP1 e incorpora persistencia
 
 ### 1. Clonar el repositorio
 
-```bash
+
 git clone https://github.com/garavagliaangelina81-creator/TP1-WEB2.git
 cd TP1-WEB2
 2. Levantar PostgreSQL con Docker
@@ -278,7 +278,7 @@ Se verifica el correcto funcionamiento del endpoint `GET /api/listas`, obteniend
 
 Se verifica el correcto funcionamiento del endpoint `POST /api/listas`, creando correctamente la lista **"Trabajo"** y obteniendo una respuesta HTTP `200 OK`.
 
-![Creación de lista](docs/lista-creacion.png)
+[Creación de lista](docs/lista-creacion.png)
 
 ### 3. Creación de un favorito
 
