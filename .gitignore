@@ -33,3 +33,5 @@ build/
 .vscode/
 # config local de cloude code
 .cloude/
+salida.txt
+*.log

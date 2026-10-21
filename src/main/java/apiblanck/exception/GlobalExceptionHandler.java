@@ -45,6 +45,14 @@ public class GlobalExceptionHandler {
             ex.getMessage()
     );
 }
+@ExceptionHandler(CredencialesInvalidasException.class)
+public ProblemDetail handleCredencialesInvalidas(CredencialesInvalidasException ex) {
+    return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+}
+@ExceptionHandler(AccesoDenegadoException.class)
+public ProblemDetail handleAccesoDenegado(AccesoDenegadoException ex) {
+    return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+}
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenerico(Exception ex) {

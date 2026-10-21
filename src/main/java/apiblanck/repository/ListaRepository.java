@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface ListaRepository {
 
     List<Lista> buscarTodos();
+    List<Lista> buscarPorUsuarioId(Long usuarioId);
 
     Optional<Lista> buscarPorId(Long id);
 

@@ -1,6 +1,7 @@
 package apiblanck.repository;
 
 import apiblanck.entity.ListaEntity;
+import apiblanck.entity.UsuarioEntity;
 import apiblanck.model.Lista;
 
 import java.util.List;
@@ -12,14 +13,27 @@ import org.springframework.stereotype.Repository;
 public class ListaRepositoryAdapter implements ListaRepository {
 
     private final ListaJpaRepository jpaRepository;
+    private final UsuarioJpaRepository usuarioJpaRepository;
 
-    public ListaRepositoryAdapter(ListaJpaRepository jpaRepository) {
+    public ListaRepositoryAdapter(
+        ListaJpaRepository jpaRepository,
+        UsuarioJpaRepository usuarioJpaRepository
+    ) {
         this.jpaRepository = jpaRepository;
+        this.usuarioJpaRepository = usuarioJpaRepository;
     }
 
     @Override
     public List<Lista> buscarTodos() {
         return jpaRepository.findAll()
+            .stream()
+            .map(this::aDominio)
+            .toList();
+    }
+
+    @Override
+    public List<Lista> buscarPorUsuarioId(Long usuarioId) {
+        return jpaRepository.findByUsuarioId(usuarioId)
             .stream()
             .map(this::aDominio)
             .toList();
@@ -47,14 +61,17 @@ public class ListaRepositoryAdapter implements ListaRepository {
     private Lista aDominio(ListaEntity entity) {
         return new Lista(
             entity.getId(),
-            entity.getNombre()
+            entity.getNombre(),
+            entity.getUsuario().getId()
         );
     }
 
     private ListaEntity aEntity(Lista lista) {
+        UsuarioEntity usuario = usuarioJpaRepository.getReferenceById(lista.usuarioId());
         return new ListaEntity(
             lista.id(),
-            lista.nombre()
+            lista.nombre(),
+            usuario
         );
     }
 }

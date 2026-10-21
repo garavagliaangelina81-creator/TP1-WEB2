@@ -1,15 +1,17 @@
 package apiblanck.service;
 
-import apiblanck.model.Favorito;
-import apiblanck.model.Lista;
-import apiblanck.repository.FavoritoRepository;
-import apiblanck.repository.ListaRepository;
+import apiblanck.exception.AccesoDenegadoException;
 import apiblanck.exception.RecursoEnConflictoException;
 import apiblanck.exception.RecursoNoEncontradoException;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
-
+import apiblanck.model.Favorito;
+import apiblanck.model.Lista;
+import apiblanck.model.UsuarioAutenticado;
+import apiblanck.repository.FavoritoRepository;
+import apiblanck.repository.ListaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class ListaService {
@@ -25,76 +27,98 @@ public class ListaService {
         this.favoritoRepository = favoritoRepository;
     }
 
-    public List<Lista> listar() {
-        return listaRepository.buscarTodos();
+    public List<Lista> listar(UsuarioAutenticado usuario) {
+        if (usuario.esAdmin()) {
+            return listaRepository.buscarTodos();
+        }
+        return listaRepository.buscarPorUsuarioId(usuario.id());
     }
 
-    public Lista buscar(Long id) {
-        return listaRepository.buscarPorId(id)
-            .orElseThrow(() ->
-                new RuntimeException("No existe la Lista " + id)
-            );
+    public Lista buscar(Long id, UsuarioAutenticado usuario) {
+        Lista lista = obtener(id);
+        verificarAcceso(lista, usuario);
+        return lista;
     }
 
-    public Lista crear(String nombre) {
-        Lista nueva = new Lista(
-            null,
-            nombre
-        );
-
+    public Lista crear(String nombre, UsuarioAutenticado usuario) {
+        // El dueño sale SIEMPRE del token, nunca de lo que mande el cliente
+        Lista nueva = new Lista(null, nombre, usuario.id());
         return listaRepository.guardar(nueva);
     }
-    public void eliminar(Long id) {
-    buscar(id);
 
-    List<Favorito> favoritos = favoritoRepository.buscarPorListaId(id);
+    public void eliminar(Long id, UsuarioAutenticado usuario) {
+        buscar(id, usuario);
 
-    if (!favoritos.isEmpty()) {
-        throw new RecursoEnConflictoException(
-            "No se puede eliminar la lista porque contiene favoritos"
-        );
+        List<Favorito> favoritos = favoritoRepository.buscarPorListaId(id);
+
+        if (!favoritos.isEmpty()) {
+            throw new RecursoEnConflictoException(
+                "No se puede eliminar la lista porque contiene favoritos"
+            );
+        }
+
+        listaRepository.eliminar(id);
     }
 
-    listaRepository.eliminar(id);
-}
-
-    public List<Favorito> listarFavoritos(Long listaId) {
-        buscar(listaId);
+    public List<Favorito> listarFavoritos(Long listaId, UsuarioAutenticado usuario) {
+        buscar(listaId, usuario);
 
         return favoritoRepository.buscarPorListaId(listaId);
     }
+
     @Transactional
-public void moverFavoritos(Long origenId, Long destinoId) {
-    Lista origen = listaRepository.buscarPorId(origenId)
-        .orElseThrow(() ->
-            new RecursoNoEncontradoException(
-                "No existe la lista de origen " + origenId
-            )
-        );
+    public void moverFavoritos(Long origenId, Long destinoId, UsuarioAutenticado usuario) {
+        Lista origen = listaRepository.buscarPorId(origenId)
+            .orElseThrow(() ->
+                new RecursoNoEncontradoException("No existe la lista de origen " + origenId)
+            );
 
-    listaRepository.buscarPorId(destinoId)
-        .orElseThrow(() ->
-            new RecursoNoEncontradoException(
-                "No existe la lista de destino " + destinoId
-            )
-        );
+        Lista destino = listaRepository.buscarPorId(destinoId)
+            .orElseThrow(() ->
+                new RecursoNoEncontradoException("No existe la lista de destino " + destinoId)
+            );
 
-    List<Favorito> favoritos = favoritoRepository.buscarPorListaId(origenId);
+        // Hay que ser dueño (o ADMIN) de AMBAS listas
+        verificarAcceso(origen, usuario);
+        verificarAcceso(destino, usuario);
 
-    for (Favorito favorito : favoritos) {
-        Favorito movido = new Favorito(
-            favorito.id(),
-            favorito.productoId(),
-            favorito.nota(),
-            favorito.fecha(),
-            destinoId
-        );
+        List<Favorito> favoritos = favoritoRepository.buscarPorListaId(origenId);
 
-        favoritoRepository.guardar(movido);
+        for (Favorito favorito : favoritos) {
+            Favorito movido = new Favorito(
+                favorito.id(),
+                favorito.productoId(),
+                favorito.nota(),
+                favorito.fecha(),
+                destinoId
+            );
+
+            favoritoRepository.guardar(movido);
+        }
+
+        listaRepository.eliminar(origen.id());
     }
 
-    listaRepository.eliminar(origen.id());
-}
+    private Lista obtener(Long id) {
+        return listaRepository.buscarPorId(id)
+            .orElseThrow(() ->
+                new RecursoNoEncontradoException("No existe la Lista " + id)
+            );
+    }
+
+    /**
+     * Regla de autorización: dueño o ADMIN.
+     * Si no, 403 (no 404: la lista existe, pero no es suya).
+     */
+    private void verificarAcceso(Lista lista, UsuarioAutenticado usuario) {
+        boolean esDuenio = lista.usuarioId().equals(usuario.id());
+
+        if (!esDuenio && !usuario.esAdmin()) {
+            throw new AccesoDenegadoException(
+                "No tenés permiso para operar sobre la lista " + lista.id()
+            );
+        }
+    }
 }
 /* por ahora hacemos las operaciones basicas, listar, buscar y crearq  */
 /* get/ listas - listar()
