@@ -35,3 +35,6 @@ build/
 .cloude/
 salida.txt
 *.log
+target/
+salida.txt
+.env

@@ -2,47 +2,59 @@ package apiblanck.service;
 
 import apiblanck.dto.CrearFavoritoRequest;
 import apiblanck.dto.FavoritoResponse;
-import apiblanck.repository.FavoritoRepository;
-import apiblanck.model.Favorito;
 import apiblanck.exception.RecursoNoEncontradoException;
+import apiblanck.model.Favorito;
+import apiblanck.model.Lista;
+import apiblanck.model.UsuarioAutenticado;
+import apiblanck.repository.FavoritoRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import org.springframework.stereotype.Service;
 
 @Service
 public class FavoritoService {
 
     private final FavoritoRepository repository;
+    private final ListaService listaService;
 
-    public FavoritoService(FavoritoRepository repository) {
+    public FavoritoService(FavoritoRepository repository, ListaService listaService) {
         this.repository = repository;
+        this.listaService = listaService;
     }
 
-    public List<FavoritoResponse> listar(String texto) {
+    public List<FavoritoResponse> listar(String texto, UsuarioAutenticado usuario) {
         String filtro = texto == null ? "" : texto.trim().toLowerCase();
 
-        return repository.buscarTodos().stream()
+        // Un usuario común ve solo los favoritos de SUS listas; un ADMIN ve todos
+        List<Favorito> visibles;
+        if (usuario.esAdmin()) {
+            visibles = repository.buscarTodos();
+        } else {
+            visibles = listaService.listar(usuario).stream()
+                .flatMap(lista -> repository.buscarPorListaId(lista.id()).stream())
+                .toList();
+        }
+
+        return visibles.stream()
             .filter(favorito -> favorito.nota().toLowerCase().contains(filtro))
             .map(this::aResponse)
             .toList();
     }
 
-    public FavoritoResponse buscar(Long id) {
-        return repository.buscarPorId(id)
-            .map(this::aResponse)
-            .orElseThrow(() -> new RecursoNoEncontradoException(
-                "No existe el Favorito " + id
-            ));
+    public FavoritoResponse buscar(Long id, UsuarioAutenticado usuario) {
+        return aResponse(obtenerConAcceso(id, usuario));
     }
 
-    public FavoritoResponse crear(CrearFavoritoRequest request) {
+    public FavoritoResponse crear(CrearFavoritoRequest request, UsuarioAutenticado usuario) {
+        // 404 si la lista no existe, 403 si no es suya
+        Lista lista = listaService.buscar(request.listaId(), usuario);
+
         Favorito nuevo = new Favorito(
             null,
             request.productoId(),
             request.nota(),
             java.time.LocalDate.now(),
-            request.listaId()
+            lista.id()
         );
 
         return aResponse(repository.guardar(nuevo));
@@ -50,24 +62,38 @@ public class FavoritoService {
 
     public FavoritoResponse actualizar(
         Long id,
-        CrearFavoritoRequest request
+        CrearFavoritoRequest request,
+        UsuarioAutenticado usuario
     ) {
-        buscar(id);
+        obtenerConAcceso(id, usuario);
+        // Si lo mueve a otra lista, también tiene que ser dueño de la lista destino
+        Lista destino = listaService.buscar(request.listaId(), usuario);
 
         Favorito actualizado = new Favorito(
             id,
             request.productoId(),
             request.nota(),
             java.time.LocalDate.now(),
-            request.listaId()
+            destino.id()
         );
 
         return aResponse(repository.guardar(actualizado));
     }
 
-    public void eliminar(Long id) {
-        buscar(id);
+    public void eliminar(Long id, UsuarioAutenticado usuario) {
+        obtenerConAcceso(id, usuario);
         repository.eliminar(id);
+    }
+
+    // Busca el favorito (404 si no existe) y verifica que su lista sea del usuario (403 si no)
+    private Favorito obtenerConAcceso(Long id, UsuarioAutenticado usuario) {
+        Favorito favorito = repository.buscarPorId(id)
+            .orElseThrow(() -> new RecursoNoEncontradoException(
+                "No existe el Favorito " + id
+            ));
+
+        listaService.buscar(favorito.listaId(), usuario);
+        return favorito;
     }
 
     private FavoritoResponse aResponse(Favorito favorito) {

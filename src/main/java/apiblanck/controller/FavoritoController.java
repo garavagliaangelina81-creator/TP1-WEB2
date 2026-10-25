@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import apiblanck.model.UsuarioAutenticado;
+import io.swagger.v3.oas.annotations.Parameter;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController 
 @RequestMapping("/api/favoritos")
@@ -32,39 +35,53 @@ public class FavoritoController {
         this.service = service;
     }
 
-    @GetMapping 
-    @Operation(summary = "Listar favoritos", description = "Lista todos los favoritos que se guardaron")
-    public List<FavoritoResponse> listar(@RequestParam(defaultValue = "") String q) {
-        return service.listar(q);
-    }
+   @GetMapping
+@Operation(summary = "Listar favoritos",
+    description = "Requiere autenticación. Lista los favoritos de las listas del usuario (todos, si es ADMIN)")
+public List<FavoritoResponse> listar(
+        @RequestParam(defaultValue = "") String q,
+        @Parameter(hidden = true) @AuthenticationPrincipal UsuarioAutenticado usuario) {
+    return service.listar(q, usuario);
+}
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Buscar por Id", description = "Muestra el favorito específico según el id ingresado")
-    public FavoritoResponse buscar(@PathVariable Long id) {
-        return service.buscar(id);
-    }
+@GetMapping("/{id}")
+@Operation(summary = "Buscar por Id",
+    description = "Requiere autenticación. 403 si el favorito pertenece a la lista de otro usuario")
+public FavoritoResponse buscar(
+        @PathVariable Long id,
+        @Parameter(hidden = true) @AuthenticationPrincipal UsuarioAutenticado usuario) {
+    return service.buscar(id, usuario);
+}
 
-    @PostMapping
-    @Operation(summary = "Agregar a favoritos", description = "Agrega un producto de la api externa a favoritos y se le asocia una nota personal")
-    public ResponseEntity<FavoritoResponse> crear(@Valid @RequestBody CrearFavoritoRequest request) {
-        FavoritoResponse creado = service.crear(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
-    }
+@PostMapping
+@Operation(summary = "Agregar a favoritos",
+    description = "Requiere autenticación. Agrega un producto a una lista propia, con una nota personal")
+public ResponseEntity<FavoritoResponse> crear(
+        @Valid @RequestBody CrearFavoritoRequest request,
+        @Parameter(hidden = true) @AuthenticationPrincipal UsuarioAutenticado usuario) {
+    FavoritoResponse creado = service.crear(request, usuario);
+    return ResponseEntity.status(HttpStatus.CREATED).body(creado);
+}
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Modifica un favorito", description = "Permite actualizar los datos de un producto en el listado de favoritos")
-    public FavoritoResponse actualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody CrearFavoritoRequest request) {
-        return service.actualizar(id, request);
-    }
+@PutMapping("/{id}")
+@Operation(summary = "Modifica un favorito",
+    description = "Requiere autenticación. Permite actualizar un favorito propio")
+public FavoritoResponse actualizar(
+        @PathVariable Long id,
+        @Valid @RequestBody CrearFavoritoRequest request,
+        @Parameter(hidden = true) @AuthenticationPrincipal UsuarioAutenticado usuario) {
+    return service.actualizar(id, request, usuario);
+}
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar favorito", description = "Permite eliminar un favorito del listado en memoria")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        service.eliminar(id);
-        return ResponseEntity.noContent().build();
-    }
+@DeleteMapping("/{id}")
+@Operation(summary = "Eliminar favorito",
+    description = "Requiere autenticación. Permite eliminar un favorito propio")
+public ResponseEntity<Void> eliminar(
+        @PathVariable Long id,
+        @Parameter(hidden = true) @AuthenticationPrincipal UsuarioAutenticado usuario) {
+    service.eliminar(id, usuario);
+    return ResponseEntity.noContent().build();
+}
 }
 //Es el mas complejo de los tres, es el que se comunica con el cliente, recibe las solicitudes y devuelve las respuestas.
 /*Usa muchos anotadores:
